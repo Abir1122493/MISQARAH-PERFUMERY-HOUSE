@@ -1,8 +1,11 @@
 
-name: Build MISQARAH Android App
+name: Build MISQARAH Android APP
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -12,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Java
@@ -26,25 +29,27 @@ jobs:
         with:
           channel: stable
 
-      - name: Extract Flutter Project
+      - name: Extract Flutter ZIP
         run: |
-          mkdir app_src
-          unzip -o MISQARAH_PERFUMERY_HOUSE_Flutter_Starter.zip -d app_src
+          mkdir -p app_src
+          unzip -o MISQARAH_PERFUMERY_HOUSE_Flutter_Starter-1.zip -d app_src
 
-      - name: Create Android Project
+      - name: Create Android Project Structure
         working-directory: app_src
-        run: flutter create . --platforms=android
+        run: |
+          flutter create --platforms=android --project-name=misqarah_perfumery_house .
 
       - name: Install Dependencies
         working-directory: app_src
         run: flutter pub get
 
-      - name: Build Android APK
+      - name: Build Release APK
         working-directory: app_src
         run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MISQARAH-Android-APK
+          name: MISQARAH-PERFUMERY-HOUSE-APK
           path: app_src/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
